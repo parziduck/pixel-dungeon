@@ -17,38 +17,39 @@
  */
 package com.watabou.pixeldungeon.items.weapon.enchantments;
 
-import com.watabou.pixeldungeon.Dungeon;
 import com.watabou.pixeldungeon.actors.Char;
-import com.watabou.pixeldungeon.actors.buffs.Buff;
-import com.watabou.pixeldungeon.actors.buffs.Terror;
-import com.watabou.pixeldungeon.actors.buffs.Vertigo;
+import com.watabou.pixeldungeon.effects.Speck;
 import com.watabou.pixeldungeon.items.weapon.Weapon;
+import com.watabou.pixeldungeon.sprites.CharSprite;
 import com.watabou.pixeldungeon.sprites.ItemSprite;
 import com.watabou.pixeldungeon.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
 
-public class Horror extends Weapon.Enchantment {
+public class Leech extends Weapon.Enchantment {
 
-	private static final String TXT_ELDRITCH	= "eldritch %s";
+	private static final String TXT_VAMPIRIC	= "vampiric %s";
 	
-	private static ItemSprite.Glowing GREY = new ItemSprite.Glowing( 0x222222 );
+	private static ItemSprite.Glowing RED = new ItemSprite.Glowing( 0x660022 );
 	
 	@Override
 	public boolean proc( Weapon weapon, Char attacker, Char defender, int damage ) {
-		// lvl 0 - 20%
-		// lvl 1 - 33%
-		// lvl 2 - 43%
+		
 		int level = Math.max( 0, weapon.effectiveLevel() );
 		
-		if (Random.Int( level + 5 ) >= 4) {
-			
-			if (defender == Dungeon.hero) {
-				Buff.affect( defender, Vertigo.class, Vertigo.duration( defender ) );
-			} else {
-				Buff.affect( defender, Terror.class, Terror.DURATION ).object = attacker.id();
-			}
+		// lvl 0 - 33%
+		// lvl 1 - 43%
+		// lvl 2 - 50%
+		int maxValue = damage * (level + 2) / (level + 6);
+		int effValue = Math.min( Random.IntRange( 0, maxValue ), attacker.HT - attacker.HP );
+		
+		if (effValue > 0) {
+		
+			attacker.HP += effValue;
+			attacker.sprite.emitter().start( Speck.factory( Speck.HEALING ), 0.4f, 1 );
+			attacker.sprite.showStatus( CharSprite.POSITIVE, Integer.toString( effValue ) );
 			
 			return true;
+			
 		} else {
 			return false;
 		}
@@ -56,12 +57,12 @@ public class Horror extends Weapon.Enchantment {
 	
 	@Override
 	public Glowing glowing() {
-		return GREY;
+		return RED;
 	}
 	
 	@Override
-	public String name( String weaponName) {
-		return String.format( TXT_ELDRITCH, weaponName );
+	public String name( String weaponName ) {
+		return String.format( TXT_VAMPIRIC, weaponName );
 	}
 
 }
