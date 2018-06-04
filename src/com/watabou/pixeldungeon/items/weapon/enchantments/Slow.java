@@ -18,31 +18,38 @@
 package com.watabou.pixeldungeon.items.weapon.enchantments;
 
 import com.watabou.pixeldungeon.actors.Char;
-import com.watabou.pixeldungeon.actors.buffs.Buff;
+import com.watabou.pixeldungeon.effects.Speck;
 import com.watabou.pixeldungeon.items.weapon.Weapon;
+import com.watabou.pixeldungeon.sprites.CharSprite;
 import com.watabou.pixeldungeon.sprites.ItemSprite;
 import com.watabou.pixeldungeon.sprites.ItemSprite.Glowing;
 import com.watabou.utils.Random;
 
-public class Slow extends Weapon.Enchantment {
+public class Leech extends Weapon.Enchantment {
 
-	private static final String TXT_CHILLING = "chilling %s";
+	private static final String TXT_VAMPIRIC	= "vampiric %s";
 	
-	private static ItemSprite.Glowing BLUE = new ItemSprite.Glowing( 0x0044FF );
+	private static ItemSprite.Glowing RED = new ItemSprite.Glowing( 0x660022 );
 	
 	@Override
 	public boolean proc( Weapon weapon, Char attacker, Char defender, int damage ) {
-		// lvl 0 - 25%
-		// lvl 1 - 40%
-		// lvl 2 - 50%
+		
 		int level = Math.max( 0, weapon.effectiveLevel() );
 		
-		if (Random.Int( level + 4 ) >= 3) {
-			
-			Buff.prolong( defender, com.watabou.pixeldungeon.actors.buffs.Slow.class, 
-				Random.Float( 1, 1.5f + level ) );
+		// lvl 0 - 33%
+		// lvl 1 - 43%
+		// lvl 2 - 50%
+		int maxValue = damage * (level + 2) / (level + 6);
+		int effValue = Math.min( Random.IntRange( 0, maxValue ), attacker.HT - attacker.HP );
+		
+		if (effValue > 0) {
+		
+			attacker.HP += effValue;
+			attacker.sprite.emitter().start( Speck.factory( Speck.HEALING ), 0.4f, 1 );
+			attacker.sprite.showStatus( CharSprite.POSITIVE, Integer.toString( effValue ) );
 			
 			return true;
+			
 		} else {
 			return false;
 		}
@@ -50,12 +57,12 @@ public class Slow extends Weapon.Enchantment {
 	
 	@Override
 	public Glowing glowing() {
-		return BLUE;
+		return RED;
 	}
 	
 	@Override
-	public String name( String weaponName) {
-		return String.format( TXT_CHILLING, weaponName );
+	public String name( String weaponName ) {
+		return String.format( TXT_VAMPIRIC, weaponName );
 	}
 
 }
