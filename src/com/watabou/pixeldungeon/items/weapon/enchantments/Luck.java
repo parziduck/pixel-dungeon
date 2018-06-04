@@ -18,40 +18,51 @@
 package com.watabou.pixeldungeon.items.weapon.enchantments;
 
 import com.watabou.pixeldungeon.actors.Char;
+import com.watabou.pixeldungeon.effects.Speck;
 import com.watabou.pixeldungeon.items.weapon.Weapon;
+import com.watabou.pixeldungeon.sprites.CharSprite;
 import com.watabou.pixeldungeon.sprites.ItemSprite;
 import com.watabou.pixeldungeon.sprites.ItemSprite.Glowing;
+import com.watabou.utils.Random;
 
-public class Luck extends Weapon.Enchantment {
+public class Leech extends Weapon.Enchantment {
 
-	private static final String TXT_LUCKY	= "lucky %s";
+	private static final String TXT_VAMPIRIC	= "vampiric %s";
 	
-	private static ItemSprite.Glowing GREEN = new ItemSprite.Glowing( 0x00FF00 );
+	private static ItemSprite.Glowing RED = new ItemSprite.Glowing( 0x660022 );
 	
 	@Override
 	public boolean proc( Weapon weapon, Char attacker, Char defender, int damage ) {
+		
 		int level = Math.max( 0, weapon.effectiveLevel() );
 		
-		int dmg = damage;
-		for (int i=1; i <= level+1; i++) {
-			dmg = Math.max( dmg, attacker.damageRoll() - i );
-		}
+		// lvl 0 - 33%
+		// lvl 1 - 43%
+		// lvl 2 - 50%
+		int maxValue = damage * (level + 2) / (level + 6);
+		int effValue = Math.min( Random.IntRange( 0, maxValue ), attacker.HT - attacker.HP );
 		
-		if (dmg > damage) {
-			defender.damage( dmg - damage, this );
+		if (effValue > 0) {
+		
+			attacker.HP += effValue;
+			attacker.sprite.emitter().start( Speck.factory( Speck.HEALING ), 0.4f, 1 );
+			attacker.sprite.showStatus( CharSprite.POSITIVE, Integer.toString( effValue ) );
+			
 			return true;
+			
 		} else {
 			return false;
 		}
 	}
 	
 	@Override
-	public String name( String weaponName) {
-		return String.format( TXT_LUCKY, weaponName );
+	public Glowing glowing() {
+		return RED;
+	}
+	
+	@Override
+	public String name( String weaponName ) {
+		return String.format( TXT_VAMPIRIC, weaponName );
 	}
 
-	@Override
-	public Glowing glowing() {
-		return GREEN;
-	}
 }
