@@ -52,7 +52,7 @@ public class ShortSword extends MeleeWeapon {
 	}
 	
 	public ShortSword() {
-		super( 1, 1f, 1f );
+		super( 10, 10f, 10f );
 		
 		STR = 11;
 	}
