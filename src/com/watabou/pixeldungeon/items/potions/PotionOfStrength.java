@@ -32,8 +32,8 @@ public class PotionOfStrength extends Potion {
 	protected void apply( Hero hero ) {
 		setKnown();
 		
-		hero.STR++;
-		hero.sprite.showStatus( CharSprite.POSITIVE, "+1 str" );
+		hero.STR+=10;
+		hero.sprite.showStatus( CharSprite.POSITIVE, "+10 str" );
 		GLog.p( "Newfound strength surges through your body." );
 		
 		Badges.validateStrengthAttained();
@@ -43,7 +43,7 @@ public class PotionOfStrength extends Potion {
 	public String desc() {
 		return
 			"This powerful liquid will course through your muscles, " +
-			"permanently increasing your strength by one point.";
+			"permanently increasing your strength by ten points.";
 	}
 	
 	@Override
